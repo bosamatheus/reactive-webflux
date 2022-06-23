@@ -7,6 +7,8 @@ import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.util.Optional;
+
 @Slf4j
 @Repository
 @RequiredArgsConstructor
@@ -21,6 +23,15 @@ public class PaymentRepository {
             })
             .subscribeOn(Schedulers.boundedElastic())
             .doOnNext(next -> log.info("Payment received {}", next.paymentId()));
+    }
+
+    public Mono<Payment> getPayment(final String paymentId) {
+        return Mono.defer(() -> {
+                log.info("Getting payment {} from database", paymentId);
+                final Optional<Payment> payment = db.get(paymentId, Payment.class);
+                return Mono.justOrEmpty(payment);
+            })
+            .subscribeOn(Schedulers.boundedElastic());
     }
 
 }

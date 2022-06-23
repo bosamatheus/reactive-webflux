@@ -6,13 +6,15 @@ import lombok.Builder;
 @Builder
 public record CreatePaymentResponse(
     String paymentId,
-    String userId
+    String userId,
+    String paymentStatus
 ) {
 
     public static CreatePaymentResponse mapDomainToDTO(final Payment payment) {
         return CreatePaymentResponse.builder()
             .paymentId(payment.paymentId())
             .userId(payment.userId())
+            .paymentStatus(payment.paymentStatus().name())
             .build();
     }
 

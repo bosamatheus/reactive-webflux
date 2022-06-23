@@ -23,14 +23,14 @@ public class InMemoryDatabase implements Database {
     public <T> T save(final String key, final T value) {
         final var data = this.mapper.writeValueAsString(value);
         DATABASE.put(key, data);
-        sleep(3_000);
+        sleep(500);
         return value;
     }
 
     @Override
     public <T> Optional<T> get(final String key, final Class<T> clazz) {
         final String json = DATABASE.get(key);
-        sleep(1_000);
+        sleep(200);
         return Optional.ofNullable(json).map(data -> {
             return mapJsonToObject(data, clazz);
         });
