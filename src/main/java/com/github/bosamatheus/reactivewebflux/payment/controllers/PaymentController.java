@@ -2,20 +2,25 @@ package com.github.bosamatheus.reactivewebflux.payment.controllers;
 
 import com.github.bosamatheus.reactivewebflux.payment.dto.CreatePaymentRequest;
 import com.github.bosamatheus.reactivewebflux.payment.dto.CreatePaymentResponse;
+import com.github.bosamatheus.reactivewebflux.payment.models.Payment;
 import com.github.bosamatheus.reactivewebflux.payment.publishers.PaymentPublisher;
 import com.github.bosamatheus.reactivewebflux.payment.services.PaymentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 import reactor.util.retry.Retry;
 
 import java.time.Duration;
+import java.util.List;
 
 import static com.github.bosamatheus.reactivewebflux.payment.models.Payment.PaymentStatus.APPROVED;
 
@@ -49,6 +54,20 @@ public class PaymentController {
                 Retry.backoff(2, Duration.ofSeconds(1))
                     .doAfterRetry(signal -> log.info("Execution failed. Retrying... {}", signal.totalRetries()))
             );
+    }
+
+    @GetMapping
+    public Mono<String> getIds() {
+        return Mono.fromCallable(() -> String.join(",", service.getPaymentsIds()))
+            .subscribeOn(Schedulers.parallel());
+    }
+
+    @GetMapping("/search")
+    public Flux<Payment> findAllById(@RequestParam final String paymentIds) {
+        final List<String> ids = List.of(paymentIds.split(","));
+        log.info("Collecting {} payments", ids.size());
+        return Flux.fromIterable(ids)
+            .flatMap(service::getPayment);
     }
 
 }

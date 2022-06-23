@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
@@ -23,17 +24,21 @@ public class InMemoryDatabase implements Database {
     public <T> T save(final String key, final T value) {
         final var data = this.mapper.writeValueAsString(value);
         DATABASE.put(key, data);
-        sleep(500);
+        sleep(30);
         return value;
     }
 
     @Override
     public <T> Optional<T> get(final String key, final Class<T> clazz) {
         final String json = DATABASE.get(key);
-        sleep(200);
-        return Optional.ofNullable(json).map(data -> {
-            return mapJsonToObject(data, clazz);
-        });
+        sleep(15);
+        return Optional.ofNullable(json)
+            .map(data -> mapJsonToObject(data, clazz));
+    }
+
+    @Override
+    public Set<String> getKeys() {
+        return DATABASE.keySet();
     }
 
     private <T> T mapJsonToObject(final String data, final Class<T> clazz) {

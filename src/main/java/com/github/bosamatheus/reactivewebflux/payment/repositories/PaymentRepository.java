@@ -8,6 +8,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.Optional;
+import java.util.Set;
 
 @Slf4j
 @Repository
@@ -32,6 +33,10 @@ public class PaymentRepository {
                 return Mono.justOrEmpty(payment);
             })
             .subscribeOn(Schedulers.boundedElastic());
+    }
+
+    public Set<String> getPaymentIds() {
+        return db.getKeys();
     }
 
 }

@@ -10,6 +10,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.UUID;
 
 import static com.github.bosamatheus.reactivewebflux.payment.models.Payment.PaymentStatus.PENDING;
@@ -43,6 +44,10 @@ public class PaymentService {
                 return repository.savePayment(payment.withPaymentStatus(status));
             })
             .subscribeOn(Schedulers.boundedElastic());
+    }
+
+    public Set<String> getPaymentsIds() {
+        return repository.getPaymentIds();
     }
 
 }

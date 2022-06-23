@@ -8,6 +8,8 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Sinks;
 
+import java.time.Duration;
+
 import static com.github.bosamatheus.reactivewebflux.payment.models.Payment.PaymentStatus.APPROVED;
 
 @Slf4j
@@ -19,8 +21,9 @@ public class PaymentListener implements InitializingBean {
     private final PaymentService service;
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         sink.asFlux()
+            .delayElements(Duration.ofMillis(100))
             .subscribe(
                 next -> {
                     log.info("On next message - {}", next.key());
